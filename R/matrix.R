@@ -4,9 +4,9 @@
 #' @details The dominant eigenvalue is the eigenvalue of A with the largest real part.
 #' @examples
 #' A = matrix(c(0,1,.5,0), nrow=2)
-#' domEig(A)
+#' dom.eig(A)
 #' @export
-domEig<-function(A){ 
+dom.eig<-function(A){ 
   lambda<-Re(eigen(A)$values[1]) # dominant eigenvalue
   return(lambda)}
 
@@ -17,9 +17,9 @@ domEig<-function(A){
 #' the dominant eigenvalue of A.
 #' @examples
 #' A = matrix(c(0,1,.5,0), nrow=2)
-#' stabAge(A)
+#' stab.age(A)
 #' @export
-stabAge<-function(A){
+stab.age<-function(A){
   v<-Re(eigen(A)$vector[,1])
   v<-v/sum(v)  # stable age distribution
   return(v)}
@@ -32,10 +32,10 @@ stabAge<-function(A){
 #' eigenvalue of A.
 #' @examples
 #' A = matrix(c(0,1,.5,0), nrow=2)
-#' repVal(A)
+#' repro.val(A)
 #' @export
-repVal<-function(A){
-  v<-stabAge(A)
+repro.val<-function(A){
+  v<-stab.age(A)
   w<-Re(eigen(t(A))$vector[,1])
   w<-w/sum(v*w)  # reproductive values
   return(w)
@@ -48,11 +48,11 @@ repVal<-function(A){
 #' See Caswell 2001.
 #' @examples
 #' A = matrix(c(0,1,.5,0), nrow=2)
-#' Sens(A)
+#' sensitivity(A)
 #' @export
-Sens <- function(A){
-  v.A <- stabAge(A)
-  w.A <- repVal(A)
+sensitivity <- function(A){
+  v.A <- stab.age(A)
+  w.A <- repro.val(A)
   return(w.A%*%t(v.A)*sign(A))
 }
 
@@ -63,11 +63,11 @@ Sens <- function(A){
 #' See Caswell 2001.
 #' @examples
 #' A = matrix(c(0,1,.5,0), nrow=2)
-#' Elast(A)
+#' elasticity(A)
 #' @export
-Elast <- function(A){
-  S.A <-  Sens(A)
-  lam <- domEig(A)
+elasticity <- function(A){
+  S.A <-  sensitivity (A)
+  lam <- dom.eig(A)
   return(S.A*A/lam)
 }
 
@@ -79,7 +79,7 @@ Elast <- function(A){
 #' See help for function image.
 #' @examples
 #' A = matrix(c(0,1,.5,0), nrow=2)
-#' Sens(A)
+#' sensitivity(A)
 #' image(mflip(A))
 #' @export
 mflip<-function(A){t(A)[,ncol(A):1]}

@@ -5,7 +5,7 @@
 #' @param t.max time to stop and compute population size
 #' @param qe quasi-extinction threshold 
 #' @export
-Project.iid <- function(n.0, matrices, p, t.max, qe=0){
+project.iid <- function(n.0, matrices, p, t.max, qe=0){
   mat.dim <- dim(matrices)
   s <- mat.dim[2]
   d <- sqrt(mat.dim[1])
@@ -30,15 +30,6 @@ Project.iid <- function(n.0, matrices, p, t.max, qe=0){
     return(t.max+1)
 }
 
-#' Compute total popuation in stochastic environment after fixed time
-#' @param n.0 initial number in stages
-#' @param matrices is a d^2 x s matrix, where d number of stages, s the number of matrixes
-#' @param p vector of probabilities for drawing each matrix
-#' @param t.max time to stop and compute population size
-#' @export
-Total.iid <- function(n.0, matrices, p, t.max){
-  return(sum(Project.iid(n.0, matrices, p, t.max)))
-}
 
 #' Compute distribution of total populations after fixed time
 #' @param n.0 initial number in stages
@@ -47,7 +38,7 @@ Total.iid <- function(n.0, matrices, p, t.max){
 #' @param t.max time to stop and compute population size
 #' @param N number of replicates to compute the distribution over 
 #' @export
-Totals.iid <- function(n.0, matrices, p, t.max, N){
+totals.iid <- function(n.0, matrices, p, t.max, N){
   out<- numeric(N)
   out <- sapply(out, function(z){ z=0;  sum(Project.iid(n.0, matrices, p, t.max))})
   return(out)
@@ -61,7 +52,7 @@ Totals.iid <- function(n.0, matrices, p, t.max, N){
 #' @param N number of replicates to compute the distribution over
 #' @param qe quasi-extinction threshold 
 #' @export
-Exit.times.iid <- function(n.0, matrices, p, t.max, N, qe=0){
+exit.times.iid <- function(n.0, matrices, p, t.max, N, qe=0){
   if (qe == 0)
     stop("quasi extinction threshold must be greater than 0")
   if (qe >= sum(n.0))
@@ -70,5 +61,4 @@ Exit.times.iid <- function(n.0, matrices, p, t.max, N, qe=0){
   out <- sapply(out, function(z){ z=0; Project.iid(n.0, matrices, p, t.max, qe)})
   return(out)
 }
-
 
