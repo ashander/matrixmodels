@@ -1,13 +1,11 @@
 Package: spm
 Type: Package
-Title: Tools for building and analyzing structured (matrix) population models,
-    and applications like PVA.
+Title: Tools for structured (matrix) population models
 Version: 0.0-1
 Date: 2012-04-25
 Author: Jaime Ashander
 Maintainer: Jaime Ashander <jashander@ucdavis.edu>
-Description: Heavily dependent on two books: H Caswell. 2001. Matrix Population
-    Models. WF Morris and DF Doak. 2003. Quantiative Conservation Biology.
+Description: Tools to build and analyze structured poplation models, as well as applications like PVA.
 License: BSD
 LazyLoad: yes
 Collate:
