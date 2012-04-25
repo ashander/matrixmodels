@@ -53,7 +53,7 @@ repro.val<-function(A){
 sensitivity <- function(A){
   v.A <- stab.age(A)
   w.A <- repro.val(A)
-  return(w.A%*%t(v.A)*sign(A))
+  return(w.A%*%t(v.A))
 }
 
 #' Compute a matrix of sensitivities
@@ -66,9 +66,9 @@ sensitivity <- function(A){
 #' elasticity(A)
 #' @export
 elasticity <- function(A){
-  S.A <-  sensitivity (A)
+  S.A <-  sensitivity(A)
   lam <- dom.eig(A)
-  return(S.A*A/lam)
+  return(S.A*A/lam * sign(A))
 }
 
 #' Flip a matrix so plotting with image makes visual sense 

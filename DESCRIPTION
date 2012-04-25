@@ -11,4 +11,5 @@ License: BSD
 LazyLoad: yes
 Collate:
     'matrix.R'
-    'pva.R'
+    'tools.R'
+    'stochastic.R'
