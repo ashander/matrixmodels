@@ -1,3 +1,37 @@
+#' Generate a transition matrix 
+#' @param growth.prob vector of transition probabilities
+#' @param surv.prob vector of survival probabilites 
+#' @examples
+#' g.p <- c(1,0.208,0.268, 0.280)
+#' s.p <- c(.05,.3,.716, 0.839)
+#' gen.T(g.p, s.p)
+#' @export
+gen.T <- function(growth.prob, surv.prob){
+  d <- length(growth.prob)
+  if( d != length(surv.prob))
+    stop('growth and survival probability vectors must be same length')
+  T = matrix(nrow=d,ncol=d,0)
+  for (i in 1:d){
+    T[i,i] = surv.prob[i]*(1-growth.prob[i])  # survival and not grow 
+    if(i < d){T[i+1,i] = surv.prob[i]*growth.prob[i]}
+  }
+  T[d,d] = surv.prob[d]
+  return(T)
+}
+
+#' Generate a fecundity matrix
+#' @param d dimension of matrix (number of stages)
+#' @param fec vector of fecundites starting from largest class
+#' @examples
+#' f.v <- c(1, 7)
+#' gen.F(4, f.v)
+#' @export
+gen.F <- function(d, fec){
+  F = matrix(nrow=d,ncol=d,0)
+  stage.at.mat <- d-length(fec) + 1
+  F[1, stage.at.mat:d] <- fec
+  return(F)
+}
 
 #' Compute dominant eigenvalue
 #' @param A projection matrix for population model x(t+1) = A x(t)

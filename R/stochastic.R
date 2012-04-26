@@ -1,4 +1,4 @@
-#' Compute growth in all age classes in a stochastic environment after fixed time
+#' Project population growth of all age classes in a stochastic environment after fixed time
 #' @param n.0 initial number in stages
 #' @param matrices is a d^2 x s matrix, where d number of stages, s the number of matrixes
 #' @param p vector of probabilities for drawing each matrix
@@ -29,7 +29,7 @@ project.iid <- function(n.0, matrices, p, t.max, qe=0){
     i <- A.indices[t] # extract appropriate index
     A <- matrices[,i]
     dim(A) <- c(d,d) #reshape
-    n <- A%*%n # project population 1 period ahead
+    n <- A%*%n # project population 1 period aheadg
     if(sum(n) < qe)
       return(t) #return the time of extinction
   }
@@ -39,6 +39,42 @@ project.iid <- function(n.0, matrices, p, t.max, qe=0){
     return(t.max+1)
 }
 
+#' Compute the stochastic growth rate in an iid stochastic environment 
+#' @param matrices is a d^2 x s matrix, where d number of stages, s the number of matrixes
+#' @param p vector of probabilities for drawing each matrix
+#' @param t.max timeframe over which to compute growth rate
+#' @examples
+#' A1 = matrix(c(0,1,.5,0), nrow=2)
+#' A2 = matrix(c(0,2,.5,0), nrow=2)
+#' A3 = matrix(c(0,7,.5,0), nrow=2)
+#' ## d=2 stages, to generating appropriate d^2 by 3 matrix for input...
+#' d = 2
+#' mats = c(A1, A2, A3) # s = 3
+#' dim(mats) = c(d^2, length(mats)/d^2)
+#' @export
+growth.iid <- function(matrices, p, t.max){
+  mat.dim <- dim(matrices)
+  s <- mat.dim[2]
+  d <- sqrt(mat.dim[1])
+  if (length(p) != s)
+    stop("need value p for each matrix")
+  if (sum(p) != 1)
+    stop("p must sum to 1")
+  # generate t.max random matrix indices
+  A.indices <- sample(1:s, size=t.max, prob=p, replace=TRUE)
+  n <- matrix(1, d, 1) ## set initial population at 1 in each stage for convenient compuation
+  lyap <- numeric(t.max)
+  for(t in seq_along(A.indices)){
+    i <- A.indices[t] # extract appropriate index
+    A <- matrices[,i]
+    dim(A) <- c(d,d) #reshape
+
+    tmp <- A%*%n # project population 1 period ahead 
+    lyap[t] <- log(tmp[1]/n[1])
+    n <- tmp/tmp[1] #rescale
+  }
+  return(mean(lyap))
+}
 
 #' Compute distribution of total populations after fixed time
 #' @param n.0 initial number in stages
