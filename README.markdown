@@ -9,6 +9,8 @@ library(devtools)
 install_github(repo='matrixmodels',username='ashander')
 ````
 
+## Note: below does not seem to work for Windows
+
 ## Development instructions 
 
 Edit and add new functions in the files in the R/ directory. 
