@@ -4,18 +4,18 @@
 #' @examples
 #' g.p <- c(1,0.208,0.268, 0.280)
 #' s.p <- c(.05,.3,.716, 0.839)
-#' gen.T(g.p, s.p)
+#' GenT(g.p, s.p)
 #' @export
-gen.T <- function(growth.prob, surv.prob){
+GenT <- function(growth.prob, surv.prob){
   d <- length(growth.prob)
   if( d != length(surv.prob))
     stop('growth and survival probability vectors must be same length')
-  T = matrix(nrow=d,ncol=d,0)
+  T <- matrix(nrow=d,ncol=d,0)
   for (i in 1:d){
-    T[i,i] = surv.prob[i]*(1-growth.prob[i])  # survival and not grow 
-    if(i < d){T[i+1,i] = surv.prob[i]*growth.prob[i]}
+    T[i,i] <- surv.prob[i]*(1-growth.prob[i])  # survival and not grow 
+    if(i < d){T[i+1,i] <- surv.prob[i]*growth.prob[i]}
   }
-  T[d,d] = surv.prob[d]
+  T[d,d] <- surv.prob[d]
   return(T)
 }
 
@@ -24,10 +24,10 @@ gen.T <- function(growth.prob, surv.prob){
 #' @param fec vector of fecundites starting from largest class
 #' @examples
 #' f.v <- c(1, 7)
-#' gen.F(4, f.v)
+#' GenF(4, f.v)
 #' @export
-gen.F <- function(d, fec){
-  F = matrix(nrow=d,ncol=d,0)
+GenF <- function(d, fec){
+  F <- matrix(nrow=d,ncol=d,0)
   stage.at.mat <- d-length(fec) + 1
   F[1, stage.at.mat:d] <- fec
   return(F)
@@ -38,10 +38,10 @@ gen.F <- function(d, fec){
 #' @details The dominant eigenvalue is the eigenvalue of A with the largest real part.
 #' @examples
 #' A = matrix(c(0,1,.5,0), nrow=2)
-#' dom.eig(A)
+#' DomEig(A)
 #' @export
-dom.eig<-function(A){ 
-  lambda<-Re(eigen(A)$values[1]) # dominant eigenvalue
+DomEig<-function(A){ 
+  lambda <- Re(eigen(A)$values[1]) # dominant eigenvalue
   return(lambda)}
 
 
@@ -51,11 +51,11 @@ dom.eig<-function(A){
 #' the dominant eigenvalue of A.
 #' @examples
 #' A = matrix(c(0,1,.5,0), nrow=2)
-#' stab.age(A)
+#' StabAge(A)
 #' @export
-stab.age<-function(A){
-  v<-Re(eigen(A)$vector[,1])
-  v<-v/sum(v)  # stable age distribution
+StabAge<-function(A){
+  v <- Re(eigen(A)$vector[,1])
+  v <- v/sum(v)  # stable age distribution
   return(v)}
 
 #' Compute reproductive value vector
@@ -66,12 +66,12 @@ stab.age<-function(A){
 #' eigenvalue of A.
 #' @examples
 #' A = matrix(c(0,1,.5,0), nrow=2)
-#' repro.val(A)
+#' RepVal(A)
 #' @export
-repro.val<-function(A){
-  v<-stab.age(A)
-  w<-Re(eigen(t(A))$vector[,1])
-  w<-w/sum(v*w)  # reproductive values
+RepVal<-function(A){
+  v <- StabAge(A)
+  w <- Re(eigen(t(A))$vector[,1])
+  w <- w/sum(v*w)  # reproductive values
   return(w)
 }
 
@@ -82,11 +82,11 @@ repro.val<-function(A){
 #' See Caswell 2001.
 #' @examples
 #' A = matrix(c(0,1,.5,0), nrow=2)
-#' sensitivity(A)
+#' Sensitivity(A)
 #' @export
-sensitivity <- function(A){
-  v.A <- stab.age(A)
-  w.A <- repro.val(A)
+Sensitivity <- function(A){
+  v.A <- StabAge(A)
+  w.A <- RepVal(A)
   return(w.A%*%t(v.A))
 }
 
@@ -97,12 +97,12 @@ sensitivity <- function(A){
 #' See Caswell 2001.
 #' @examples
 #' A = matrix(c(0,1,.5,0), nrow=2)
-#' elasticity(A)
+#' Elasticity(A)
 #' @export
-elasticity <- function(A){
-  S.A <-  sensitivity(A)
-  lam <- dom.eig(A)
-  return(S.A*A/lam * sign(A))
+Elasticity <- function(A){
+  s.A <-  Sensitivity(A)
+  lam <- DomEig(A)
+  return(s.A*A/lam * sign(A))
 }
 
 #' Flip a matrix so plotting with image makes visual sense 
@@ -113,9 +113,9 @@ elasticity <- function(A){
 #' See help for function image.
 #' @examples
 #' A = matrix(c(0,1,.5,0), nrow=2)
-#' sensitivity(A)
-#' image(mflip(A))
+#' Sensitivity(A)
+#' image(Flip(A))
 #' @export
-mflip<-function(A){t(A)[,ncol(A):1]}
+Flip<-function(A){t(A)[,ncol(A):1]}
 
 

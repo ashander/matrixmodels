@@ -1,13 +1,13 @@
-Package: spm
+Package: tamp
 Type: Package
-Title: Tools for structured (matrix) population models
+Title: Tools for analysis of  matrix population (models)
 Version: 0.0-1
 Date: 2012-04-25
 Author: Jaime Ashander
 Maintainer: Jaime Ashander <jashander@ucdavis.edu>
 Description: Tools to build and analyze structured poplation models, as well as
     applications like PVA.
-License: BSD
+License: GPL-3
 LazyLoad: yes
 Collate:
     'matrix.R'
