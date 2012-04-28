@@ -8,16 +8,16 @@
 #' @export
 GenStoch <- function(force.vec, base.matrix, element.mask, force.fxn){
 
-  if(is.null(dim(base.matrix)))
+  if (is.null(dim(base.matrix)))
     stop("need to supply a matrix to base.matrix")
   d <- dim(base.matrix)[1]
-  if(d != dim(base.matrix)[2])
+  if (d != dim(base.matrix)[2])
     stop("need to supply a square matrix to base.matrix")
-  if(is.null(dim(element.mask)) && length(element.mask) != 2)
+  if (is.null(dim(element.mask)) && length(element.mask) != 2)
     stop("element.mask needs to be either a vector of length 2 giving indices, or a logical matrix")
-  if(!is.null(dim(element.mask)) && dim(element.mask) != dim(base.matrix))
+  if (!is.null(dim(element.mask)) && dim(element.mask) != dim(base.matrix))
     stop("element.mask needs to have same dimension as base.matrix")
-  if(length(element.mask) == 2){
+  if (length(element.mask) == 2){
     i <- element.mask[1]
     j <- element.mask[2]
     element.mask <- outer(1:d, 1:d, function(x,y){ ifelse(x==i & y==j, TRUE, FALSE)})
@@ -34,10 +34,10 @@ GenStoch <- function(force.vec, base.matrix, element.mask, force.fxn){
 
 #' Project population growth of all age classes in a stochastic environment after fixed time
 #' @param n.0 initial number in stages
-#' @param matrices is a d^2 x s matrix, where d number of stages, s the number of matrixes
+#' @param matrices is a list of matrices or d^2 x s matrix, where d number of stages, s the number of matrixes
 #' @param p vector of probabilities for drawing each matrix
 #' @param t.max time to stop and compute population size
-#' @param qe quasi-extinction threshold
+#' @param nreps number of times to compute
 #' @examples
 #' A1 = matrix(c(0,1,.5,0), nrow=2)
 #' A2 = matrix(c(0,2,.5,0), nrow=2)
@@ -48,10 +48,60 @@ GenStoch <- function(force.vec, base.matrix, element.mask, force.fxn){
 #' dim(mats) = c(d^2, length(mats)/d^2)
 #' Project.iid(matrix(1, d, 1), mats, rep(1/3, 3), 10)
 #' @export
-Project.iid <- function(n.0, matrices, p, t.max, qe=0){
+Project.iid <- function(n.0, matrices, p, t.max, nreps=100){
+  if (is.list(matrices)) {
+    matrices <- matrix(unlist(matrices), ncol = length(matrices))
+    
+  }
   mat.dim <- dim(matrices)
   s <- mat.dim[2]
   d <- sqrt(mat.dim[1])
+  if (length(p) != s)
+    stop("need value p for each matrix")
+  if (sum(p) != 1)
+    stop("p must sum to 1")
+  # generate t.max random matrix indices
+
+  out <- matrix(numeric(nreps * d), nrow=nreps)
+
+  for(row in 1:nreps){
+    A.indices <- sample(1:s, size=t.max, prob=p, replace=TRUE)                                          
+    n <- n.0
+    for(i in A.indices){
+      A <- matrix(matrices[,i], nrow=d)
+      n <- A %*% n # project population 1 period ahead
+    }
+    out[row,] <- n
+  }
+  colnames(out) <- names(n.0)
+  return(out)
+}
+
+#' Project population growth of all age classes in a stochastic environment after fixed time for nreps
+#' @param n.0 initial number in stages
+#' @param matrices is a list of matrices or d^2 x s matrix, where d number of stages, s the number of matrixes
+#' @param p vector of probabilities for drawing each matrix
+#' @param t.max time to stop and compute population size
+#' @param qe quasi-extinction threshold
+#' @param nreps number of replicates to compute over
+#' @param weight.sum weighting vector for summation to check qe threshold
+#' @examples
+#' A1 = matrix(c(0,1,.5,0), nrow=2)
+#' A2 = matrix(c(0,2,.5,0), nrow=2)
+#' A3 = matrix(c(0,7,.5,0), nrow=2)
+#' ## d=2 stages, to generating appropriate d^2 by 3 matrix for input...
+#' d = 2
+#' mats = c(A1, A2, A3) # s = 3
+#' dim(mats) = c(d^2, length(mats)/d^2)
+.qe.project.iid <- function(n.0, matrices, p, t.max, qe=0, nreps=100, weight.sum=NULL){
+  if (is.list(matrices)) {
+    matrices <- matrix(unlist(matrices), ncol = length(matrices))
+  }
+  mat.dim <- dim(matrices)
+  s <- mat.dim[2]
+  d <- sqrt(mat.dim[1])
+  if (is.null(weight.sum))
+    weight.sum <- rep(1, d)
   if (length(p) != s)
     stop("need value p for each matrix")
   if (sum(p) != 1)
@@ -63,18 +113,18 @@ Project.iid <- function(n.0, matrices, p, t.max, qe=0){
     i <- A.indices[t] # extract appropriate index
     A <- matrices[,i]
     dim(A) <- c(d,d) #reshape
-    n <- A%*%n # project population 1 period aheadg
-    if(sum(n) < qe)
+    n <- A%*%n # project population 1 period ahead
+    N <- sum(weight.sum * round(n))
+    if(N < qe)
       return(t) #return the time of extinction
   }
-  if (qe == 0) 
-    return(n) ##
-  if (qe > 0)
-    return(t.max+1)
+  return(Inf)
 }
 
+
+
 #' Compute the stochastic growth rate in an iid stochastic environment 
-#' @param matrices is a d^2 x s matrix, where d number of stages, s the number of matrixes
+#' @param matrices list of matrices or a d^2 x s matrix, where d number of stages, s the number of matrixes
 #' @param p vector of probabilities for drawing each matrix
 #' @param t.max timeframe over which to compute growth rate
 #' @examples
@@ -88,6 +138,9 @@ Project.iid <- function(n.0, matrices, p, t.max, qe=0){
 #' Growth.iid(mats, rep(1/3, 3), 10)
 #' @export
 Growth.iid <- function(matrices, p, t.max){
+  if (is.list(matrices)) {
+    matrices <- matrix(unlist(matrices), ncol = length(matrices))
+  }
   mat.dim <- dim(matrices)
   s <- mat.dim[2]
   d <- sqrt(mat.dim[1])
@@ -103,7 +156,6 @@ Growth.iid <- function(matrices, p, t.max){
     i <- A.indices[t] # extract appropriate index
     A <- matrices[,i]
     dim(A) <- c(d,d) #reshape
-
     tmp <- A%*%n # project population 1 period ahead 
     lyap[t] <- log(tmp[1]/n[1])
     n <- tmp/tmp[1] #rescale
@@ -111,51 +163,57 @@ Growth.iid <- function(matrices, p, t.max){
   return(mean(lyap))
 }
 
-#' Compute distribution of total populations after fixed time
-#' @param n.0 initial number in stages
-#' @param matrices is a d^2 x s matrix, where d number of stages, s the number of matrixes
-#' @param p vector of probabilities for drawing each matrix
-#' @param t.max time to stop and compute population size
-#' @param N number of replicates to compute the distribution over
-#' @details Should include a weighting/masking vector for totals in one class only
-#' @export
-Totals.iid <- function(n.0, matrices, p, t.max, N){
-  out<- numeric(N)
-  out <- sapply(out, function(z){ z=0;  sum(Project.iid(n.0, matrices, p, t.max))})
-  return(out)
-}
-
 #' Compute distribution of times to quasi-extinction
 #' @param n.0 initial number in stages
 #' @param matrices is a d^2 x s matrix, where d number of stages, s the number of matrixes
 #' @param p vector of probabilities for drawing each matrix
 #' @param t.max time to stop and compute population size
-#' @param N number of replicates to compute the distribution over
+#' @param nreps number of replicates to compute the distribution over
+#' @param weight.sum weighting vector for summation
 #' @param qe quasi-extinction threshold 
 #' @export
-ExitTimes.iid <- function(n.0, matrices, p, t.max, N, qe=0){
+ExitTimes.iid <- function(n.0, matrices, p, t.max, nreps, qe=0, weight.sum=NULL){
   if (qe == 0)
     stop("quasi extinction threshold must be greater than 0")
   if (qe >= sum(n.0))
     stop("quasi extinction threshold must be below starting population sum(n.0)")
-  out <- numeric(N)
-  out <- sapply(out, function(z){ z=0; Project.iid(n.0, matrices, p, t.max, qe)})
+  if (is.null(weight.sum))
+    stop("need summation weight")
+  out <- numeric(nreps)
+  out <- sapply(out, function(z) {z=0; .qe.project.iid(n.0=n.0, matrices=matrices, p=p, t.max=t.max, nreps=1, weight.sum=weight.sum, qe=qe)})
   return(out)
 }
 
-#' Compute cdf for probability of extinction versus time
+#' Return empirical cdf function for probability of extinction versus time
 #' @param n.0 initial number in stages
 #' @param matrices is a d^2 x s matrix, where d number of stages, s the number of matrixes
 #' @param p vector of probabilities for drawing each matrix
 #' @param t.max time to stop and compute population size
-#' @param N number of replicates to compute the distribution over
+#' @param nreps number of replicates to compute the distribution over
 #' @param qe quasi-extinction threshold
+#' @param weight.sum weighting vector for summation
 #' @details wrapper for ecdf function
-#' returns a function
-#' @export
-Exit.cdf.iid <- function(n.0, matrices, p, t.max, N, qe=0){
- return(ecdf(ExitTimes.iid(n.0=n.0, matrices=matrices, p=p, t.max=t.max, N=N, qe=qe)))
+#'  ecdf function
+.exit.cdf.iid <- function(n.0, matrices, p, t.max, nreps, qe=0, weight.sum=NULL){
+ return(ecdf(ExitTimes.iid(n.0=n.0, matrices=matrices, p=p, t.max=t.max, nreps=nreps, qe=qe, weight.sum=weight.sum)))
 }
+
+#' Compute empirical cdf for probability of extinction versus time
+#' @param n.0 initial number in stages
+#' @param matrices is a d^2 x s matrix, where d number of stages, s the number of matrixes
+#' @param p vector of probabilities for drawing each matrix
+#' @param t.max time to stop and compute population size
+#' @param nreps number of replicates to compute the distribution over
+#' @param qe quasi-extinction threshold
+#' @param weight.sum weighting vector for summation  
+#' @details wrapper for ecdf function
+#' Returns vector of length t.max giving probability of extinction at each time from 1 to t.max
+#' @export
+Exit.cdf.iid <- function(n.0, matrices, p, t.max, nreps, qe=0, weight.sum=NULL){
+  exit.cdf <- .exit.cdf.iid(n.0=n.0, matrices=matrices, p=p, t.max=t.max, nreps=nreps, qe=qe, weight.sum=weight.sum)
+  return(exit.cdf(1:t.max))
+}
+
 
 #' Compute confidence interval for probability of extinction within specified timeframe
 #' @param time time at which to calculate CI
@@ -165,16 +223,17 @@ Exit.cdf.iid <- function(n.0, matrices, p, t.max, N, qe=0){
 #' @param matrices is a d^2 x s matrix, where d number of stages, s the number of matrixes
 #' @param p vector of probabilities for drawing each matrix
 #' @param t.max time to stop and compute population size
-#' @param N number of replicates to compute the exit time distribution over within each run
+#' @param nreps number of replicates to compute the exit time distribution over within each run
 #' @param qe quasi-extinction threshold
+#' @param weight.sum weighting vector for summation  
 #' @details This MAY NOT fully represent the variablity in the system this function does not
 #' use distribution of vital rates, but rather repeated draws of complete matrices.
 #' See Fieberg and Ellner (2003, Ecology) and Morris and Doak (2003).
 #' @export
-Exit.ci.iid <- function(time, ci.width, reps, n.0, matrices, p, t.max, N, qe=0){
+Exit.ci.iid <- function(time, ci.width, reps, n.0, matrices, p, t.max, nreps, qe=0, weight.sum=NULL){
   extinction.prob <- sapply(numeric(reps),
                             function(z){ z <- 0;
-                                         emp.cdf <- Exit.cdf.iid(n.0, matrices, p, t.max, N, qe);
+                                         emp.cdf <- .exit.cdf.iid(n.0, matrices, p, t.max, nreps, qe, weight.sum);
                                          emp.cdf(time)}
                             )
   return(CI(extinction.prob, width=ci.width))

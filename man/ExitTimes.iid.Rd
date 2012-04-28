@@ -2,7 +2,8 @@
 \alias{ExitTimes.iid}
 \title{Compute distribution of times to quasi-extinction}
 \usage{
-  ExitTimes.iid(n.0, matrices, p, t.max, N, qe = 0)
+  ExitTimes.iid(n.0, matrices, p, t.max, nreps, qe = 0,
+    weight.sum = NULL)
 }
 \arguments{
   \item{n.0}{initial number in stages}
@@ -14,8 +15,10 @@
 
   \item{t.max}{time to stop and compute population size}
 
-  \item{N}{number of replicates to compute the distribution
-  over}
+  \item{nreps}{number of replicates to compute the
+  distribution over}
+
+  \item{weight.sum}{weighting vector for summation}
 
   \item{qe}{quasi-extinction threshold}
 }

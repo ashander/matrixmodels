@@ -2,19 +2,19 @@
 \alias{Project.iid}
 \title{Project population growth of all age classes in a stochastic environment after fixed time}
 \usage{
-  Project.iid(n.0, matrices, p, t.max, qe = 0)
+  Project.iid(n.0, matrices, p, t.max, nreps = 100)
 }
 \arguments{
   \item{n.0}{initial number in stages}
 
-  \item{matrices}{is a d^2 x s matrix, where d number of
-  stages, s the number of matrixes}
+  \item{matrices}{is a list of matrices or d^2 x s matrix,
+  where d number of stages, s the number of matrixes}
 
   \item{p}{vector of probabilities for drawing each matrix}
 
   \item{t.max}{time to stop and compute population size}
 
-  \item{qe}{quasi-extinction threshold}
+  \item{nreps}{number of times to compute}
 }
 \description{
   Project population growth of all age classes in a

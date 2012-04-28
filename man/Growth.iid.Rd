@@ -5,8 +5,8 @@
   Growth.iid(matrices, p, t.max)
 }
 \arguments{
-  \item{matrices}{is a d^2 x s matrix, where d number of
-  stages, s the number of matrixes}
+  \item{matrices}{list of matrices or a d^2 x s matrix,
+  where d number of stages, s the number of matrixes}
 
   \item{p}{vector of probabilities for drawing each matrix}
 

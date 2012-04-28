@@ -3,7 +3,7 @@
 \title{Compute confidence interval for probability of extinction within specified timeframe}
 \usage{
   Exit.ci.iid(time, ci.width, reps, n.0, matrices, p,
-    t.max, N, qe = 0)
+    t.max, nreps, qe = 0, weight.sum = NULL)
 }
 \arguments{
   \item{time}{time at which to calculate CI}
@@ -23,10 +23,12 @@
 
   \item{t.max}{time to stop and compute population size}
 
-  \item{N}{number of replicates to compute the exit time
-  distribution over within each run}
+  \item{nreps}{number of replicates to compute the exit
+  time distribution over within each run}
 
   \item{qe}{quasi-extinction threshold}
+
+  \item{weight.sum}{weighting vector for summation}
 }
 \description{
   Compute confidence interval for probability of extinction

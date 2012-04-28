@@ -1,8 +1,9 @@
 \name{Exit.cdf.iid}
 \alias{Exit.cdf.iid}
-\title{Compute cdf for probability of extinction versus time}
+\title{Compute empirical cdf for probability of extinction versus time}
 \usage{
-  Exit.cdf.iid(n.0, matrices, p, t.max, N, qe = 0)
+  Exit.cdf.iid(n.0, matrices, p, t.max, nreps, qe = 0,
+    weight.sum = NULL)
 }
 \arguments{
   \item{n.0}{initial number in stages}
@@ -14,15 +15,20 @@
 
   \item{t.max}{time to stop and compute population size}
 
-  \item{N}{number of replicates to compute the distribution
-  over}
+  \item{nreps}{number of replicates to compute the
+  distribution over}
 
   \item{qe}{quasi-extinction threshold}
+
+  \item{weight.sum}{weighting vector for summation}
 }
 \description{
-  Compute cdf for probability of extinction versus time
+  Compute empirical cdf for probability of extinction
+  versus time
 }
 \details{
-  wrapper for ecdf function returns a function
+  wrapper for ecdf function Returns vector of length t.max
+  giving probability of extinction at each time from 1 to
+  t.max
 }
 
