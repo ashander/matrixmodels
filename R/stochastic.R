@@ -32,6 +32,36 @@ GenStoch <- function(force.vec, base.matrix, element.mask, force.fxn){
   return(output)
 }
 
+#' Generate many  matrices from a stochastic forcing of vital rate: fecundity
+#' @param force.vec sequence of numbers to force with
+#' @param vitals list of vital rates upon which to perform forcing
+#' @param element.mask elements of fecundity
+#' @param force.fxn forcing function: see details
+#' @export
+GenStochF <- function (force.vec, vitals, element.mask, force.fxn) 
+{
+  if(class(vitals) != "list")
+    stop("need list of vitals with names growth, survival, fecundity, d")
+  g.prob <- vitals$growth
+  s.prob <- vitals$survival
+  fec <- vitals$fecundity
+  d <- vitals$d #number of stages
+  s <- length(force.vec)
+
+  T <- GenT(g.prob, s.prob)
+  output <- matrix(d^2, s)
+  fec.var <- fec[element.mask]
+  output <- sapply(force.vec, function(x) {
+    fec[element.mask] <- force.fxn(x, fec.var)
+    F <- GenF(d, fec)
+    
+    return(c(T+F))
+    })
+    return(output)
+}
+
+
+
 #' Project population growth of all age classes in a stochastic environment after fixed time
 #' @param n.0 initial number in stages
 #' @param matrices is a list of matrices or d^2 x s matrix, where d number of stages, s the number of matrixes

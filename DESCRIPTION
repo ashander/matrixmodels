@@ -9,6 +9,7 @@ Description: Tools to build and analyze structured poplation models, as well as
     applications like PVA.
 License: GPL-3
 LazyLoad: yes
+ByteCompile: TRUE
 Collate:
     'matrix.R'
     'tools.R'
