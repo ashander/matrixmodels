@@ -27,8 +27,8 @@ GenStoch <- function(force.vec, base.matrix, element.mask, force.fxn){
   output <- matrix(d^2, s ) # allocate a matrix of appropriate size for output
   elements <- base.matrix[element.mask]
   output <- sapply(force.vec, function(x){ base.matrix[element.mask] <- force.fxn(x, elements);
-                                           return(c(base.matrix))
-                                         })
+                                           return(base.matrix)
+                                         }, simplify=FALSE)
   return(output)
 }
 
