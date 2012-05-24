@@ -1,8 +1,9 @@
 #' Generate many  matrices from a stochastic forcing
 #' @param force.vec sequence of numbers to force with
-#' @param base.matrix matrix upon which to perform forcing
+#' @param base.matrix square matrix upon which to perform forcing
 #' @param element.mask elements on which to operate can be matrix of logicals or ONE index i, j
 #' @param force.fxn forcing function: see details
+#' @return list (with length equal to force.vec) of matrices of same dimension as base.matrix
 #' @details The function force.fxn(forcing, elements) will take the elements of force.vec and
 #' elements as its arguments, and return a new vector representing the forced elements
 #' @export
@@ -37,6 +38,9 @@ GenStoch <- function(force.vec, base.matrix, element.mask, force.fxn){
 #' @param vitals list of vital rates upon which to perform forcing
 #' @param element.mask elements of fecundity
 #' @param force.fxn forcing function: see details
+#' @return list (of length equal to force.vec) of matrices square matrices with dimension specified in vitals
+#' @details The function force.fxn(forcing, elements) will take the elements of force.vec and
+#' elements as its arguments, and return a new vector representing the forced elements
 #' @export
 GenStochF <- function (force.vec, vitals, element.mask, force.fxn) 
 {
@@ -55,8 +59,8 @@ GenStochF <- function (force.vec, vitals, element.mask, force.fxn)
     fec[element.mask] <- force.fxn(x, fec.var)
     F <- GenF(d, fec)
     
-    return(c(T+F))
-    })
+    return(T+F)
+    }, simplify=FALSE)
     return(output)
 }
 

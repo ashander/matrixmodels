@@ -14,8 +14,17 @@
 
   \item{force.fxn}{forcing function: see details}
 }
+\value{
+  list (of length equal to force.vec) of matrices square
+  matrices with dimension specified in vitals
+}
 \description{
   Generate many matrices from a stochastic forcing of vital
   rate: fecundity
+}
+\details{
+  The function force.fxn(forcing, elements) will take the
+  elements of force.vec and elements as its arguments, and
+  return a new vector representing the forced elements
 }
 

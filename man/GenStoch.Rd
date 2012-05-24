@@ -7,12 +7,17 @@
 \arguments{
   \item{force.vec}{sequence of numbers to force with}
 
-  \item{base.matrix}{matrix upon which to perform forcing}
+  \item{base.matrix}{square matrix upon which to perform
+  forcing}
 
   \item{element.mask}{elements on which to operate can be
   matrix of logicals or ONE index i, j}
 
   \item{force.fxn}{forcing function: see details}
+}
+\value{
+  list (with length equal to force.vec) of matrices of same
+  dimension as base.matrix
 }
 \description{
   Generate many matrices from a stochastic forcing
